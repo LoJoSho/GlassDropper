@@ -1,0 +1,6 @@
+name: GlassDropper
+version: ${project.version}
+main: me.lojosho.glassdropper.GlassDropper
+api-version: 1.16
+authors: [LoJoSho]
+description: Allows dropping of glass without silktouch
