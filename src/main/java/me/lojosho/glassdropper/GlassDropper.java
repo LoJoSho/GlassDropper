@@ -1,5 +1,6 @@
 package me.lojosho.glassdropper;
 
+import org.bstats.bukkit.Metrics;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.event.EventHandler;
@@ -14,6 +15,8 @@ public final class GlassDropper extends JavaPlugin implements Listener {
     public void onEnable() {
         // Plugin startup logic
         getServer().getPluginManager().registerEvents(this, this);
+        int pluginId = 8282; // <-- Replace with the id of your plugin!
+        Metrics metrics = new Metrics(this, pluginId);
 
     }
 
