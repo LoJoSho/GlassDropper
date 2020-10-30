@@ -9,11 +9,43 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.Bukkit;
+import org.bukkit.util.Consumer;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
+import java.util.Scanner;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
 
 public final class GlassDropper extends JavaPlugin implements Listener {
+
+    public class UpdateChecker {
+
+        private JavaPlugin plugin;
+        private int resourceId;
+
+        public UpdateChecker(JavaPlugin plugin, int resourceId) {
+            this.plugin = plugin;
+            this.resourceId = resourceId;
+        }
+
+        public void getVersion(final Consumer<String> consumer) {
+            Bukkit.getScheduler().runTaskAsynchronously(this.plugin, () -> {
+                try (InputStream inputStream = new URL("https://api.spigotmc.org/legacy/update.php?resource=" + this.resourceId).openStream(); Scanner scanner = new Scanner(inputStream)) {
+                    if (scanner.hasNext()) {
+                        consumer.accept(scanner.next());
+                    }
+                } catch (IOException exception) {
+                    this.plugin.getLogger().info("Cannot look for updates: " + exception.getMessage());
+                }
+            });
+        }
+    }
+
 
     @Override
     public void onEnable() {
@@ -21,7 +53,17 @@ public final class GlassDropper extends JavaPlugin implements Listener {
         getServer().getPluginManager().registerEvents(this, this);
         int pluginId = 8282; // <-- Replace with the id of your plugin!
         Metrics metrics = new Metrics(this, pluginId);
-        }
+        this.saveDefaultConfig();
+        Logger logger = this.getLogger();
+
+        new UpdateChecker(this, 81785).getVersion(version -> {
+            if (this.getDescription().getVersion().equalsIgnoreCase(version)) {
+                logger.info("There is not a new update available.");
+            } else {
+                logger.info("There is a new update available. You can find it here: https://www.spigotmc.org/resources/81785/");
+            }
+        });
+    }
 
     @Override
     public void onDisable() {
